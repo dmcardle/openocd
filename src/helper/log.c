@@ -31,10 +31,35 @@
 #endif
 #endif
 
+void log_abstract_command(const char* file, unsigned line, const char* func, const char* fmt, ...) {
+	static FILE *log_output_abstract_commands = NULL;
+	if (!log_output_abstract_commands) {
+		log_output_abstract_commands = fopen("/tmp/abstract_commands.txt", "w");
+	}
+	if (!log_output_abstract_commands) {
+		exit(1);
+	}
+
+	va_list args;
+	va_start(args, fmt);
+
+	char buf[1024];
+	if (snprintf(buf, sizeof(buf), "%s:%d %s", file, line, func) < 0 ||
+		fprintf(log_output_abstract_commands, "%-70s ", buf) < 0 ||
+		vfprintf(log_output_abstract_commands, fmt, args) < 0 ||
+		fputc('\n', log_output_abstract_commands) == EOF ||
+		fflush(log_output_abstract_commands) == EOF) {
+		exit(1);
+	}
+
+	va_end(args);
+}
+
 int debug_level = LOG_LVL_INFO;
 
 static FILE *log_output;
 static struct log_callback *log_callbacks;
+
 
 static int64_t last_time;
 

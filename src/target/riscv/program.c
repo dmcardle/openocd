@@ -32,7 +32,7 @@ int riscv_program_init(struct riscv_program *p, struct target *target)
 int riscv_program_write(struct riscv_program *program)
 {
 	for (unsigned i = 0; i < program->instruction_count; ++i) {
-		LOG_DEBUG("debug_buffer[%02x] = DASM(0x%08x)", i, program->debug_buffer[i]);
+		LOG_ABSTRACT_COMMAND("debug_buffer[%02x] = DASM(0x%08x)", i, program->debug_buffer[i]);
 		if (riscv_write_debug_buffer(program->target, i,
 					program->debug_buffer[i]) != ERROR_OK)
 			return ERROR_FAIL;
@@ -58,7 +58,7 @@ int riscv_program_exec(struct riscv_program *p, struct target *t)
 	if (riscv_program_ebreak(p) != ERROR_OK) {
 		LOG_ERROR("Unable to write ebreak");
 		for (size_t i = 0; i < riscv_debug_buffer_size(p->target); ++i)
-			LOG_ERROR("ram[%02x]: DASM(0x%08" PRIx32 ") [0x%08" PRIx32 "]",
+			LOG_ABSTRACT_COMMAND("ram[%02x]: DASM(0x%08" PRIx32 ") [0x%08" PRIx32 "]",
 					(int)i, p->debug_buffer[i], p->debug_buffer[i]);
 		return ERROR_FAIL;
 	}
@@ -84,80 +84,95 @@ int riscv_program_exec(struct riscv_program *p, struct target *t)
 
 int riscv_program_sdr(struct riscv_program *p, enum gdb_regno d, enum gdb_regno b, int offset)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, b=%x, offset=%d", p, d, b, offset);
 	return riscv_program_insert(p, sd(d, b, offset));
 }
 
 int riscv_program_swr(struct riscv_program *p, enum gdb_regno d, enum gdb_regno b, int offset)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, b=%x, offset=%d", p, d, b, offset);
 	return riscv_program_insert(p, sw(d, b, offset));
 }
 
 int riscv_program_shr(struct riscv_program *p, enum gdb_regno d, enum gdb_regno b, int offset)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, b=%x, offset=%d", p, d, b, offset);
 	return riscv_program_insert(p, sh(d, b, offset));
 }
 
 int riscv_program_sbr(struct riscv_program *p, enum gdb_regno d, enum gdb_regno b, int offset)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, b=%x, offset=%d", p, d, b, offset);
 	return riscv_program_insert(p, sb(d, b, offset));
 }
 
 int riscv_program_ldr(struct riscv_program *p, enum gdb_regno d, enum gdb_regno b, int offset)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, b=%x, offset=%d", p, d, b, offset);
 	return riscv_program_insert(p, ld(d, b, offset));
 }
 
 int riscv_program_lwr(struct riscv_program *p, enum gdb_regno d, enum gdb_regno b, int offset)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, b=%x, offset=%d", p, d, b, offset);
 	return riscv_program_insert(p, lw(d, b, offset));
 }
 
 int riscv_program_lhr(struct riscv_program *p, enum gdb_regno d, enum gdb_regno b, int offset)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, b=%x, offset=%d", p, d, b, offset);
 	return riscv_program_insert(p, lh(d, b, offset));
 }
 
 int riscv_program_lbr(struct riscv_program *p, enum gdb_regno d, enum gdb_regno b, int offset)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, b=%x, offset=%d", p, d, b, offset);
 	return riscv_program_insert(p, lb(d, b, offset));
 }
 
 int riscv_program_csrrsi(struct riscv_program *p, enum gdb_regno d, unsigned int z, enum gdb_regno csr)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, z=%x, csr=%d", p, d, z, csr);
 	assert(csr >= GDB_REGNO_CSR0 && csr <= GDB_REGNO_CSR4095);
 	return riscv_program_insert(p, csrrsi(d, z, csr - GDB_REGNO_CSR0));
 }
 
 int riscv_program_csrrci(struct riscv_program *p, enum gdb_regno d, unsigned int z, enum gdb_regno csr)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, z=%x, csr=%d", p, d, z, csr);
 	assert(csr >= GDB_REGNO_CSR0 && csr <= GDB_REGNO_CSR4095);
 	return riscv_program_insert(p, csrrci(d, z, csr - GDB_REGNO_CSR0));
 }
 
 int riscv_program_csrr(struct riscv_program *p, enum gdb_regno d, enum gdb_regno csr)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, csr=%d", p, d, csr);
 	assert(csr >= GDB_REGNO_CSR0 && csr <= GDB_REGNO_CSR4095);
 	return riscv_program_insert(p, csrrs(d, GDB_REGNO_ZERO, csr - GDB_REGNO_CSR0));
 }
 
 int riscv_program_csrw(struct riscv_program *p, enum gdb_regno s, enum gdb_regno csr)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, s=%x, csr=%x", p, s, csr);
 	assert(csr >= GDB_REGNO_CSR0);
 	return riscv_program_insert(p, csrrw(GDB_REGNO_ZERO, s, csr - GDB_REGNO_CSR0));
 }
 
 int riscv_program_fence_i(struct riscv_program *p)
 {
+	LOG_ABSTRACT_COMMAND("p=%p", p);
 	return riscv_program_insert(p, fence_i());
 }
 
 int riscv_program_fence(struct riscv_program *p)
 {
+	LOG_ABSTRACT_COMMAND("p=%p", p);
 	return riscv_program_insert(p, fence());
 }
 
 int riscv_program_ebreak(struct riscv_program *p)
 {
+	LOG_ABSTRACT_COMMAND("p=%p", p);
 	struct target *target = p->target;
 	RISCV_INFO(r);
 	if (p->instruction_count == riscv_debug_buffer_size(p->target) &&
@@ -169,11 +184,13 @@ int riscv_program_ebreak(struct riscv_program *p)
 
 int riscv_program_addi(struct riscv_program *p, enum gdb_regno d, enum gdb_regno s, int16_t u)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, d=%x, s=%x, u=%x", p, d, s, u);
 	return riscv_program_insert(p, addi(d, s, u));
 }
 
 int riscv_program_insert(struct riscv_program *p, riscv_insn_t i)
 {
+	LOG_ABSTRACT_COMMAND("p=%p, i=%x", p, i);
 	if (p->instruction_count >= riscv_debug_buffer_size(p->target)) {
 		LOG_ERROR("Unable to insert instruction:");
 		LOG_ERROR("  instruction_count=%d", (int)p->instruction_count);

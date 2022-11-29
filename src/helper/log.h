@@ -25,6 +25,10 @@
 #define PRINTF_ATTRIBUTE_FORMAT printf
 #endif
 
+#define LOG_ABSTRACT_COMMAND(fmt, ...) log_abstract_command(__FILE__, __LINE__, __func__, fmt, __VA_ARGS__)
+
+void log_abstract_command(const char* file, unsigned line, const char* func, const char* fmt, ...);
+
 /* logging priorities
  * LOG_LVL_SILENT - turn off all output. In lieu of try + catch this can be used as a
  *                  feeble ersatz.
